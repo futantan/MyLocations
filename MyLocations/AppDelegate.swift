@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,7 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        let tabBarController = window!.rootViewController as! UITabBarController
+        if let tabBarViewControllers = tabBarController.viewControllers {
+            let currentLocationViewController = tabBarViewControllers[0] as! CurrentLocationViewController
+            currentLocationViewController.managedObjectContext = managedObjectContext
+        }
         return true
     }
 
@@ -40,6 +45,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
+    
+    lazy var managedObjectContext: NSManagedObjectContext = {
+        if let modelURL = NSBundle.mainBundle().URLForResource("DataModel", withExtension: "momd") {
+            if let model = NSManagedObjectModel(contentsOfURL: modelURL) {
+                let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+                
+                let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+                let documentsDirectory = urls[0] as! NSURL
+                let storeURL = documentsDirectory.URLByAppendingPathComponent("DataStore.sqlite")
+                
+                var error: NSError?
+                if let store = coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: nil, error: &error) {
+                    let context = NSManagedObjectContext()
+                    context.persistentStoreCoordinator = coordinator
+                    return context
+                } else {
+                    println("Error adding persistent store at \(storeURL): \(error!)")
+                }
+            } else {
+                println("Error initializing model from: \(modelURL)")
+            }
+        } else {
+            println("Could not find data model in app bundle")
+        }
+        abort()
+    }()
 
 
 }
