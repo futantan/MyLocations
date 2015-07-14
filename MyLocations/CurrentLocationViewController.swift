@@ -35,7 +35,7 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
     
     
     @IBAction func getLocation() {
-        println("clicked")
+
         let authStatus = CLLocationManager.authorizationStatus()
         
         if authStatus == .NotDetermined {
@@ -179,7 +179,7 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
     
     // MARK: - CLLocationManagerDelegate
     func locationManager(manager: CLLocationManager!, didFailWithError error: NSError) {
-        println("didFailWithError \(error)")
+//        println("didFailWithError \(error)")
         
         if error.code == CLError.LocationUnknown.rawValue {
             return // keep trying
@@ -194,7 +194,7 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
     
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
         let newLocation = locations.last as! CLLocation
-        println("didUpdateLocations \(newLocation)")
+//        println("didUpdateLocations \(newLocation)")
         
         if newLocation.timestamp.timeIntervalSinceNow < -5 {
             return

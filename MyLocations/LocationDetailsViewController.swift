@@ -33,6 +33,7 @@ class LocationDetailsViewController: UITableViewController {
     var categoryName = "No Category"
     
     var managedObjectContext: NSManagedObjectContext!
+    var date = NSDate()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -86,6 +87,21 @@ class LocationDetailsViewController: UITableViewController {
     @IBAction func done() {
         let hudView = HudView.hudInView(navigationController!.view, animated: true)
         hudView.text = "Tagged"
+        
+        let location = NSEntityDescription.insertNewObjectForEntityForName("Location", inManagedObjectContext: managedObjectContext) as! Location
+        
+        location.locationDescription = descriptionText
+        location.category = categoryName
+        location.latitude = coordinate.latitude
+        location.longitude = coordinate.longitude
+        location.date = date
+        location.placemark = placemark
+        
+        var error: NSError?
+        if !managedObjectContext.save(&error) {
+            fatalCoreDataError(error)
+            return
+        }
         
         afterDelay(0.6) {
             self.dismissViewControllerAnimated(true, completion: nil)

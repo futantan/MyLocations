@@ -65,7 +65,6 @@ class CategoryPickerViewController: UITableViewController {
     
     // MARK: -- UITableViewDelegate
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        println("didselect")
         if indexPath.row != selectedIndexPath.row {
             if let newCell = tableView.cellForRowAtIndexPath(indexPath) {
                 newCell.accessoryType = .Checkmark
