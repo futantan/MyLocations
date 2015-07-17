@@ -35,19 +35,22 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
     
     
     @IBAction func getLocation() {
-
+        // 获取 访问地理位置权限 状态
         let authStatus = CLLocationManager.authorizationStatus()
         
+        // 初次申请权限
         if authStatus == .NotDetermined {
             locationManager.requestWhenInUseAuthorization()
             return
         }
         
+        // 权限被拒绝
         if authStatus == .Denied || authStatus == .Restricted {
             showLocationServicesDeniedAlert()
             return
         }
         
+        // 如果正在获取位置，停止，否则获取位置信息
         if updatingLocation {
             stopLocationManager()
         } else {
@@ -61,9 +64,13 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
         updateLabels()
         configureGetButton()
     }
-    
+  
+    // 显示提示框，定位服务被禁用
     func showLocationServicesDeniedAlert() {
-        let alert = UIAlertController(title: "Location Services Disabled", message: "Please enable location services for this app in Settings.", preferredStyle: .Alert)
+        let alert = UIAlertController(
+            title: "Location Services Disabled",
+            message: "Please enable location services for this app in Settings.",
+            preferredStyle: .Alert)
         
         let okAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
         alert.addAction(okAction)
@@ -179,7 +186,6 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
     
     // MARK: - CLLocationManagerDelegate
     func locationManager(manager: CLLocationManager!, didFailWithError error: NSError) {
-//        println("didFailWithError \(error)")
         
         if error.code == CLError.LocationUnknown.rawValue {
             return // keep trying
@@ -194,7 +200,6 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
     
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
         let newLocation = locations.last as! CLLocation
-//        println("didUpdateLocations \(newLocation)")
         
         if newLocation.timestamp.timeIntervalSinceNow < -5 {
             return

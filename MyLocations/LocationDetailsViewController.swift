@@ -26,18 +26,33 @@ class LocationDetailsViewController: UITableViewController {
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     
-    var coordinate = CLLocationCoordinate2D(latitude: 0, longitude: 0)
-    var placemark: CLPlacemark?
-    
     var descriptionText = ""
     var categoryName = "No Category"
+    var coordinate = CLLocationCoordinate2D(latitude: 0, longitude: 0)
+    var placemark: CLPlacemark?
+    var date = NSDate()
     
     var managedObjectContext: NSManagedObjectContext!
-    var date = NSDate()
+    
+    var locationToEdit: Location? {
+        didSet {
+            if let location = locationToEdit {
+                descriptionText = location.locationDescription
+                categoryName = location.category
+                date = location.date
+                coordinate = CLLocationCoordinate2DMake(location.latitude, location.longitude)
+                placemark = location.placemark
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        if let location = locationToEdit {
+            title = "Edit Location"
+        }
+        
         descriptionTextView.text = descriptionText
         categoryLabel.text = categoryName
         
@@ -86,9 +101,15 @@ class LocationDetailsViewController: UITableViewController {
     
     @IBAction func done() {
         let hudView = HudView.hudInView(navigationController!.view, animated: true)
-        hudView.text = "Tagged"
         
-        let location = NSEntityDescription.insertNewObjectForEntityForName("Location", inManagedObjectContext: managedObjectContext) as! Location
+        var location: Location
+        if let temp = locationToEdit {
+            hudView.text = "Updated"
+            location = temp
+        } else {
+            hudView.text = "Tagged"
+            location = NSEntityDescription.insertNewObjectForEntityForName("Location", inManagedObjectContext: managedObjectContext) as! Location
+        }
         
         location.locationDescription = descriptionText
         location.category = categoryName
@@ -113,7 +134,6 @@ class LocationDetailsViewController: UITableViewController {
     }
     
     @IBAction func categoryPickerDidPickCategory(segue: UIStoryboardSegue) {
-        println("categoryPickerDidPickCategory")
         let controller = segue.sourceViewController as! CategoryPickerViewController
         categoryName = controller.selectedCategoryName
         categoryLabel.text = categoryName
